@@ -7,7 +7,13 @@ from pathlib import Path
 import pandas as pd
 from loguru import logger
 
-PROJECT_ROOT = Path(__file__).resolve().parent
+def _project_root() -> Path:
+    if "__file__" in globals():
+        return Path(__file__).resolve().parent
+    return Path.cwd()
+
+
+PROJECT_ROOT = _project_root()
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 pd.set_option("future.no_silent_downcasting", True)
 
