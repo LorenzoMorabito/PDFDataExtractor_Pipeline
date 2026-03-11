@@ -1,0 +1,43 @@
+bundle:
+  name: pdfdataextractor-pipeline
+  databricks_cli_version: ">= 0.229.0"
+
+variables:
+  config_path:
+    default: configs/pipeline/pipeline_config_DEC.json
+  output_dir:
+    default: /Volumes/dev_marketing_catalog/finance_pdf/sources/TEST/output
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://1276122062834378.8.gcp.databricks.com
+  prod:
+    mode: production
+    workspace:
+      host: https://1276122062834378.8.gcp.databricks.com
+
+resources:
+  jobs:
+    pdfdataextractor_pipeline:
+      name: "[dev lmorabito] pdfdataextractor-pipeline"
+      performance_target: STANDARD
+      tasks:
+        - task_key: run_pipeline
+          spark_python_task:
+            python_file: run_pipeline.py
+            parameters:
+              - "--config"
+              - "${var.config_path}"
+              - "--output-dir"
+              - "${var.output_dir}"
+          environment_key: default
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "2"
+            dependencies:
+              - "loguru>=0.7.0"
+              - "/Volumes/dev_marketing_catalog/finance_pdf/artifacts/pdfdataextractor-0.2.2-py3-none-any.whl"

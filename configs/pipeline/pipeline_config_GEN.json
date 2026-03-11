@@ -1,5 +1,13 @@
 {
   "extraction_config_path": "configs/extraction/extract_config_page_ALL_GEN.json",
+  "extractor": {
+    "return_phrases": false,
+    "return_stats": false,
+    "return_log": false,
+    "return_lineage": false,
+    "return_cells": false
+  },
+  "debug": false,
   "header_tokens": [
     "vs",
     "act",
@@ -40,12 +48,12 @@
   "title": {
             "max_title_rows": 1,
             "drop_row": true,
-            "debug": true
+            "debug": false
           },
   "split": {
     "empty_threshold": 0.85,
     "confirm_header": true,
-    "debug": true,
+    "debug": false,
     "keywords_primary": [
       "TOTAL",
       "GRAND_TOTAL"
@@ -64,7 +72,7 @@
       0.6,
       0.95
     ],
-    "debug": true
+    "debug": false
   },
   "aggregation_keywords": [
     "Pharma",
@@ -180,6 +188,14 @@
     }
   },
   "year_ref": 2025,
+  "output": {
+    "df_final_path": "data/output/df_final_GEN_2025.csv",
+    "qc_summary_path": "data/output/qc_summary_GEN_2025.csv",
+    "errors_path": "data/output/errors_GEN_2025.csv",
+    "df_to_analyze_path": "data/output/df_to_analyze_GEN_2025.xlsx",
+    "log_percentage_path": "data/output/log_percentage_GEN_2025.csv",
+    "run_report_path": "data/output/run_report_GEN_2025.json"
+  },
   "final_columns": [
     "page_num",
     "capitolo",

@@ -39,15 +39,16 @@ def run_pipeline(config: dict, project_root: Path | None = None):
     page_config = validate_page_config(extraction_cfg["page_config"])
     threshold_righe = float(extraction_cfg.get("threshold_righe", 2))
 
+    extractor_cfg = config.get("extractor", {})
     result = extract_table_pages(
         pdf_path,
         page_config=page_config,
         threshold_righe=threshold_righe,
-        return_phrases=True,
-        return_stats=True,
-        return_log=True,
-        return_lineage=True,
-        return_cells=True,
+        return_phrases=bool(extractor_cfg.get("return_phrases", False)),
+        return_stats=bool(extractor_cfg.get("return_stats", False)),
+        return_log=bool(extractor_cfg.get("return_log", False)),
+        return_lineage=bool(extractor_cfg.get("return_lineage", False)),
+        return_cells=bool(extractor_cfg.get("return_cells", False)),
     )
 
     tables = result["tables"]
@@ -184,7 +185,7 @@ def run_pipeline(config: dict, project_root: Path | None = None):
     res = dq.run(dfs_refined, mutate=config["dataquality"]["mutate"])
 
     qc_summary = res.qc_summary
-    errors_list.append(res.errors_list)
+    errors_list.extend(res.errors_list)
     df_to_analyze = res.df_to_analyze
     dfs_refined_clean = res.clean_dfs
 
