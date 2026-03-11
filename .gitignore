@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+
+# Virtual env
+.venv/
+venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data outputs
+*.parquet
+*.xlsx
+*.csv
+data/output/
+
+# Local data and archives
+data/
+notebooks/archive/
+dsrc/
+
+# Logs
+*.log
+
+# Data inputs
+*.pdfs

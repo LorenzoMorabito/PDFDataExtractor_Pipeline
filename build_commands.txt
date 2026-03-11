@@ -1,0 +1,43 @@
+Commands for updating version and building distribution:
+
+# 1) Update version in pyproject.toml
+#    - This controls the package version shown in the wheel and sdist.
+#    - Example: set version = "0.2.0" before building.
+
+# 2) (Optional) Clean old build artifacts
+#    - Remove previous wheels/sdists to avoid confusion.
+#    - Remove build caches created by setuptools.
+
+# 3) Build sdist + wheel
+#    - sdist: source archive (.tar.gz)
+#    - wheel: installable binary archive (.whl)
+
+# --- Example commands ---
+
+# Update version manually in pyproject.toml
+# (open the file and edit the version field)
+
+# Clean old artifacts
+# Remove-Item -Recurse -Force dist
+# Remove-Item -Recurse -Force build
+
+# Build new distribution
+python -m build
+
+# (Optional) Reinstall locally to test
+# pip install -e .
+
+# Dependencies (runtime)
+# - pdfplumber
+# - pandas
+# - numpy
+# - scikit-learn
+# - xlsxwriter
+# - pyyaml (optional, only if using YAML config)
+
+# Build tooling (for distribution)
+# - pyproject.toml: standard build configuration (PEP 517/518)
+# - build: CLI to create sdist and wheel (python -m build)
+# - setuptools: build backend
+# - wheel: wheel format support
+# - pip: installer (editable installs and testing)

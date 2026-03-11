@@ -1,0 +1,5 @@
+numpy>=1.23.0
+pandas>=2.0.0
+loguru>=0.7.0
+# Install the library from git (replace with your repo URL and tag/branch)
+# pdfdataextractor @ git+https://<your_git_host>/<org>/PDFDataExtractor-lib.git@<tag>
