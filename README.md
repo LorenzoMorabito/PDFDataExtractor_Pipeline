@@ -9,10 +9,10 @@ Progettata per uso in Databricks (repo + notebook).
 - `configs/`: configurazioni estrazione e pipeline
 - `notebooks/`: notebook di analisi/test
 - `data/raw/`: PDF di esempio (input)
-- `data/output/`: output locali
+- `artifacts/`: QC e monitoring (artefatti)
 
 ## Setup locale
-1) Crea un virtualenv e installa le dipendenze:
+1) Crea un virtualenv Python 3.11 (consigliato: `.venv311-dev`) e installa le dipendenze:
    - `pip install -r requirements.txt`
 2) La libreria `pdfdataextractor` e' inclusa in `requirements.txt` come wheel locale.
    Se vuoi usare una versione da Git tag o da Volume Databricks, sostituisci la riga
@@ -31,19 +31,21 @@ Variabili ambiente supportate:
 - `LOG_LEVEL` (default: `INFO`)
 
 ## Output
-La pipeline scrive gli artefatti in base alla sezione `output` del config:
-- `df_final_path`
+Output canonico:
+- **Delta table** (`output.table_name`)
+
+Artefatti QC/monitoring (file, relativi alla root del progetto):
 - `qc_summary_path`
 - `errors_path`
-- `df_to_analyze_path`
+- `df_to_analyze_path` (scrive una directory CSV se non ha estensione)
 - `log_percentage_path`
 - `run_report_path`
 
-Se `output` non e' definito, `df_final` usa `output_excel` della extraction config.
-Puoi disattivare la scrittura con `--no-write`.
+Se `df_final_path` e' valorizzato, il file viene scritto; altrimenti si scrive solo la tabella.
+Puoi disattivare la scrittura dei file con `--no-write`.
 
 ## Databricks
 - Usa un Repo Databricks con questo progetto.
-- Usa `databricks.yml` (bundle) per un job di tipo Python script.
-- Per `pdfdataextractor`, carica la wheel su Volume/Workspace e aggiorna
-  `requirements.txt` con il path del file.
+- Usa `databricks.yml` (bundle) per un job serverless Python script.
+- Le dipendenze runtime sono definite in `databricks.yml` (environment serverless).
+- `requirements.txt` e' solo per sviluppo locale, non per il job Databricks.

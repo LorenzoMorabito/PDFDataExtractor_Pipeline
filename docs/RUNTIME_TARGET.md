@@ -19,6 +19,7 @@ All package builds, local tests, and bundle deployments must stay compatible wit
    - new wheel upload
    - bundle update
 4. Local development must use a dedicated Python 3.11 virtual environment.
+5. Canonical output is Delta table; file artifacts are for QC/monitoring only.
 
 ## Local environments
 - .build_venv = package build only
