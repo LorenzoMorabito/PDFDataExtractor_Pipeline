@@ -37,7 +37,7 @@ resources:
       environments:
         - environment_key: default
           spec:
-            environment_version: "2"
+            environment_version: "4"
             dependencies:
               - "loguru>=0.7.0"
               - "/Volumes/dev_marketing_catalog/finance_pdf/artifacts/pdfdataextractor-0.2.2-py3-none-any.whl"

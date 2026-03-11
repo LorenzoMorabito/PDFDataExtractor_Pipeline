@@ -1,7 +1,9 @@
 import argparse
 import json
 import os
+import shutil
 import sys
+import tempfile
 from pathlib import Path
 
 import pandas as pd
@@ -48,24 +50,47 @@ def _sheet_name(df: pd.DataFrame, idx: int) -> str:
     return base[:31]
 
 
+def _is_databricks() -> bool:
+    return "DATABRICKS_RUNTIME_VERSION" in os.environ
+
+
+def _is_volume_path(path: Path) -> bool:
+    return str(path).replace("\\", "/").startswith("/Volumes/")
+
+
+def _write_with_tmp(path: Path, write_fn) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmp_file = Path(tmpdir) / path.name
+        write_fn(tmp_file)
+        shutil.copy2(tmp_file, path)
+
+
 def _write_dataframe(df: pd.DataFrame, path: str | Path) -> None:
     path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
     suffix = path.suffix.lower()
-    try:
+
+    def _do_write(target: Path) -> None:
         if suffix == ".parquet":
-            df.to_parquet(path, index=False)
+            df.to_parquet(target, index=False)
         elif suffix in {".xlsx", ".xls"}:
-            df.to_excel(path, index=False)
+            df.to_excel(target, index=False)
         elif suffix == ".json":
-            df.to_json(path, orient="records", lines=True)
+            df.to_json(target, orient="records", lines=True)
         else:
-            df.to_csv(path, index=False)
+            df.to_csv(target, index=False)
+
+    try:
+        if _is_databricks() and _is_volume_path(path) and suffix in {".xlsx", ".xls"}:
+            _write_with_tmp(path, _do_write)
+        else:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            _do_write(path)
     except Exception as exc:
         if suffix in {".xlsx", ".xls"}:
             fallback = path.with_suffix(".csv")
             logger.warning("Output Excel failed ({}). Fallback to {}", exc, fallback)
-            df.to_csv(fallback, index=False)
+            _write_dataframe(df, fallback)
         else:
             raise
 
@@ -73,11 +98,17 @@ def _write_dataframe(df: pd.DataFrame, path: str | Path) -> None:
 def _write_dataframe_list(dfs: list[pd.DataFrame], path: str | Path) -> None:
     path = Path(path)
     if path.suffix.lower() in {".xlsx", ".xls"}:
-        path.parent.mkdir(parents=True, exist_ok=True)
         try:
-            with pd.ExcelWriter(path) as writer:
-                for idx, df in enumerate(dfs):
-                    df.to_excel(writer, sheet_name=_sheet_name(df, idx), index=False)
+            def _write_excel(target: Path) -> None:
+                with pd.ExcelWriter(target) as writer:
+                    for idx, df in enumerate(dfs):
+                        df.to_excel(writer, sheet_name=_sheet_name(df, idx), index=False)
+
+            if _is_databricks() and _is_volume_path(path):
+                _write_with_tmp(path, _write_excel)
+            else:
+                path.parent.mkdir(parents=True, exist_ok=True)
+                _write_excel(path)
             return
         except Exception as exc:
             logger.warning("Output Excel failed ({}). Fallback to CSV directory.", exc)
@@ -97,6 +128,7 @@ def _write_dataframe_list(dfs: list[pd.DataFrame], path: str | Path) -> None:
 
 
 def _build_output_paths(
+    project_root: Path,
     config: dict,
     extraction_cfg: dict,
     config_path: Path,
@@ -110,6 +142,8 @@ def _build_output_paths(
         "df_to_analyze": output_cfg.get("df_to_analyze_path"),
         "log_percentage": output_cfg.get("log_percentage_path"),
         "run_report": output_cfg.get("run_report_path"),
+        "table_name": output_cfg.get("table_name"),
+        "write_mode": output_cfg.get("write_mode", "overwrite"),
     }
 
     if not paths["df_final"]:
@@ -117,13 +151,17 @@ def _build_output_paths(
 
     tag = config_path.stem.replace("pipeline_config_", "")
     if output_dir:
-        base = Path(output_dir)
+        base = _resolve_path(project_root, output_dir)
         paths["df_final"] = str(base / f"df_final_{tag}.csv")
         paths["qc_summary"] = str(base / f"qc_summary_{tag}.csv")
         paths["errors"] = str(base / f"errors_{tag}.csv")
         paths["df_to_analyze"] = str(base / f"df_to_analyze_{tag}.xlsx")
         paths["log_percentage"] = str(base / f"log_percentage_{tag}.csv")
         paths["run_report"] = str(base / f"run_report_{tag}.json")
+
+    for key in ("df_final", "qc_summary", "errors", "df_to_analyze", "log_percentage", "run_report"):
+        if paths.get(key):
+            paths[key] = _resolve_path(project_root, paths[key])
 
     return paths
 
@@ -135,6 +173,20 @@ def _write_outputs(result: dict, output_paths: dict) -> None:
     errors_df = pd.DataFrame(errors_list)
     df_to_analyze = result["df_to_analyze"]
     log_percentage = pd.DataFrame(result["log_percentage"])
+
+    table_name = output_paths.get("table_name")
+    write_mode = output_paths.get("write_mode", "overwrite")
+    if table_name:
+        try:
+            from pyspark.sql import SparkSession
+
+            spark = SparkSession.builder.getOrCreate()
+            spark.createDataFrame(df_final).write.format("delta").mode(write_mode).option(
+                "overwriteSchema", "true"
+            ).saveAsTable(table_name)
+        except Exception as exc:
+            logger.error("Delta write failed for table {}: {}", table_name, exc)
+            raise
 
     if output_paths.get("df_final"):
         _write_dataframe(df_final, output_paths["df_final"])
@@ -199,7 +251,7 @@ def main() -> int:
     result = run_pipeline(config, project_root=PROJECT_ROOT)
     df_final = result["df_final"]
 
-    output_paths = _build_output_paths(config, extraction_cfg, config_path, args.output_dir)
+    output_paths = _build_output_paths(PROJECT_ROOT, config, extraction_cfg, config_path, args.output_dir)
     if not args.no_write:
         _write_outputs(result, output_paths)
 
@@ -208,4 +260,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    main()

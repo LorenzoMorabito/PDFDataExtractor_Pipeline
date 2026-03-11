@@ -1,6 +1,6 @@
 {
-  "pdf_path": "data/raw/F5_Preliminary Book Net Sales December 2025.pdf",
-  "output_excel": "data/output/F5_Preliminary_Book_Net_Sales_December_2025_rework.xlsx",
+  "pdf_path": "/Volumes/dev_marketing_catalog/finance_pdf/sources/F5_Preliminary Book Net Sales December 2025.pdf",
+  "output_excel": "/Volumes/dev_marketing_catalog/finance_pdf/sources/TEST/output/F5_Preliminary_Book_Net_Sales_December_2025_rework.xlsx",
   "threshold_righe": 2,
   "page_config": {
     "2": 5,

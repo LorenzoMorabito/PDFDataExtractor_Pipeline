@@ -189,12 +189,13 @@
   },
   "year_ref": 2025,
   "output": {
-    "df_final_path": "data/output/df_final_GEN_2025.csv",
-    "qc_summary_path": "data/output/qc_summary_GEN_2025.csv",
-    "errors_path": "data/output/errors_GEN_2025.csv",
-    "df_to_analyze_path": "data/output/df_to_analyze_GEN_2025.xlsx",
-    "log_percentage_path": "data/output/log_percentage_GEN_2025.csv",
-    "run_report_path": "data/output/run_report_GEN_2025.json"
+    "qc_summary_path": "artifacts/qc/gen_2025_qc.csv",
+    "errors_path": "artifacts/qc/gen_2025_errors.json",
+    "df_to_analyze_path": "artifacts/qc/gen_2025_df_to_analyze",
+    "log_percentage_path": "artifacts/qc/gen_2025_log_percentage.csv",
+    "run_report_path": "artifacts/monitoring/gen_2025_run_report.json",
+    "table_name": "dev_marketing_catalog.finance_pdf.fct_pdf_finance_extraction",
+    "write_mode": "overwrite"
   },
   "final_columns": [
     "page_num",
