@@ -15,7 +15,6 @@ venv/
 *.xlsx
 *.csv
 data/output/
-artifacts/
 
 # Local data and archives
 data/
