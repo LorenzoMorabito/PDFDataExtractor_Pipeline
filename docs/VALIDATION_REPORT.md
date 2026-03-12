@@ -7,7 +7,7 @@ Branch: refactor/pipeline-modularization
 Baseline generated on `main` from stable sample input and saved as `artifacts/baseline_main.json`.
 
 Main commit (baseline): a5d90aca98694324593ea61b115f27858e48a52a
-Refactor commit (validated): 75c9f9180b2871ccf77780c6bcb554de9d1cbbf7
+Refactor commit (validated): 9e9c9a85b2d18a4b4f1335ec7e5f4e0c8c6b0d0f
 Config used: `artifacts/_baseline_config_DEC.json`
 Ignored non-functional fields: `run_id`, `timestamp_utc`
 
@@ -60,3 +60,4 @@ See `docs/REFACTOR_NOTES.md` for the list of shim/wrapper modules and their purp
 ## Notes
 - Baseline config overrides the extraction config to use a local sample file (to avoid `/Volumes/...` paths).
 - Hashes ignore non-functional fields (`run_id`, `timestamp_utc`) to prevent false positives.
+- Phase 3: root shims removed; root now contains only entrypoints and contracts.
