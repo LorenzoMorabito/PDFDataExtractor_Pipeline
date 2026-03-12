@@ -37,6 +37,16 @@ def _parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def _file_ok(path: Path) -> bool:
+    return path.exists() and path.is_file() and path.stat().st_size > 0
+
+
+def _dir_with_csv(path: Path) -> bool:
+    if not path.exists() or not path.is_dir():
+        return False
+    return any(p.is_file() and p.suffix.lower() == ".csv" and p.stat().st_size > 0 for p in path.iterdir())
+
+
 def main() -> int:
     args = _parse_args()
     project_root = _project_root()
@@ -76,7 +86,42 @@ def main() -> int:
         else:
             raise
 
+    expected = {
+        "df_final.csv": output_dir / "df_final.csv",
+        "qc_summary.csv": output_dir / "qc_summary.csv",
+        "errors.csv": output_dir / "errors.csv",
+        "log_percentage.csv": output_dir / "log_percentage.csv",
+        "run_report.json": output_dir / "run_report.json",
+        "df_to_analyze.xlsx_or_dir": output_dir / "df_to_analyze.xlsx",
+    }
+
+    results = {}
+    for name, path in expected.items():
+        if name.endswith("xlsx_or_dir"):
+            ok = _file_ok(path) or _dir_with_csv(path.with_suffix(""))
+        else:
+            ok = _file_ok(path)
+        results[name] = {
+            "path": str(path),
+            "ok": bool(ok),
+            "size": int(path.stat().st_size) if path.exists() and path.is_file() else 0,
+        }
+
+    report = {
+        "delta_attempted": bool(output_paths.get("table_name")),
+        "output_dir": str(output_dir),
+        "files": results,
+    }
+    report_path = output_dir / "publish_check_report.json"
+    report_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
+
+    missing = [name for name, info in results.items() if not info["ok"]]
+    if missing:
+        logger.error("Publish check failed. Missing/empty artifacts: {}", missing)
+        return 1
+
     logger.info("Publish artifacts written to {}", output_dir)
+    logger.info("Publish check report: {}", report_path)
     return 0
 
 

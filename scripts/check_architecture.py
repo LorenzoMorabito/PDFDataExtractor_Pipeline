@@ -5,6 +5,13 @@ from typing import Dict, List, Set
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src" / "pipeline"
+ALLOWED_ROOT = {
+    "orchestrator.py",
+    "contracts.py",
+    "etl_runner.py",
+    "etl_steps.py",
+    "etl_steps_deprecated.py",
+}
 
 
 def _module_name(path: Path) -> str:
@@ -43,6 +50,34 @@ def _imports(path: Path) -> Set[str]:
     return imports
 
 
+def _is_safe_value(node: ast.AST) -> bool:
+    if isinstance(node, (ast.Constant, ast.Name, ast.Attribute)):
+        return True
+    if isinstance(node, (ast.List, ast.Tuple, ast.Set)):
+        return all(_is_safe_value(elt) for elt in node.elts)
+    if isinstance(node, ast.Dict):
+        return all(
+            (k is None or _is_safe_value(k)) and _is_safe_value(v)
+            for k, v in zip(node.keys, node.values)
+        )
+    return False
+
+
+def _is_shim_only(path: Path) -> bool:
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    for node in tree.body:
+        if isinstance(node, (ast.Import, ast.ImportFrom)):
+            continue
+        if isinstance(node, ast.Expr) and isinstance(node.value, ast.Constant) and isinstance(node.value.value, str):
+            continue
+        if isinstance(node, (ast.Assign, ast.AnnAssign)):
+            value = node.value if isinstance(node, ast.Assign) else node.value
+            if value is None or _is_safe_value(value):
+                continue
+        return False
+    return True
+
+
 def main() -> int:
     violations: List[str] = []
     py_files = [p for p in SRC.rglob("*.py") if p.name != "__init__.py"]
@@ -77,6 +112,11 @@ def main() -> int:
             for imp in imps:
                 if imp.startswith("pipeline.domains") or imp.startswith("pipeline.transforms"):
                     add("orchestrator must not depend on domains/transforms")
+
+        # Root must be shim-only unless explicitly allowed
+        if cat == "root":
+            if path.name not in ALLOWED_ROOT and not _is_shim_only(path):
+                add("root modules must be shim-only (imports + re-exports only)")
 
     if violations:
         print("ARCHITECTURE CHECK FAILED")
