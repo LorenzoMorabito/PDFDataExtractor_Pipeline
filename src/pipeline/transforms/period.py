@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from ..StartDate import StartDate
+from ..common.StartDate import StartDate
 
 
 def map_period_start(df, year_ref):

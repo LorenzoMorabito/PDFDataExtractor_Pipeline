@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from .StartDate import StartDate
+from .common.StartDate import StartDate
 
 
 def clean_percentage_smart(df, threshold=0.5, max_loss_ratio=0.1):

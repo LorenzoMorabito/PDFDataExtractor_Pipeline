@@ -5,11 +5,15 @@ Progettata per uso in Databricks (repo + notebook).
 
 ## Struttura
 - `src/pipeline/`: moduli della pipeline (codice)
+- `src/pipeline/stages/`: macromoduli (extraction, reconstruction, canonicalization, publish)
+- `src/pipeline/domains/`: logiche di dominio riallocate (reconstruction, canonicalization)
+- `src/pipeline/common/`: utility condivise
 - `run_pipeline.py`: entrypoint di esecuzione
 - `configs/`: configurazioni estrazione e pipeline
 - `notebooks/`: notebook di analisi/test
 - `data/raw/`: PDF di esempio (input)
 - `artifacts/`: QC e monitoring (artefatti)
+ - `scripts/`: check architetturale e regression harness
 
 ## Setup locale
 1) Crea un virtualenv Python 3.11 (consigliato: `.venv311-dev`) e installa le dipendenze:
@@ -44,8 +48,29 @@ Artefatti QC/monitoring (file, relativi alla root del progetto):
 Se `df_final_path` e' valorizzato, il file viene scritto; altrimenti si scrive solo la tabella.
 Puoi disattivare la scrittura dei file con `--no-write`.
 
+## Architettura
+Macromoduli:
+1. Extraction / Raw Acquisition: `pipeline.stages.extraction.extract_raw`
+2. Table Reconstruction / Structural Parsing: `pipeline.stages.reconstruction.reconstruct_tables`
+3. Canonicalization / Union / Data Quality: `pipeline.stages.canonicalization.canonicalize`
+4. Publish / Persistence / Reporting: `pipeline.stages.publish.publish_outputs`
+
+Orchestrazione end-to-end:
+- `pipeline.orchestrator.run_pipeline`
+
+Documentazione:
+- `docs/ARCHITECTURE.md`
+- `docs/REFACTOR_NOTES.md`
+
 ## Databricks
 - Usa un Repo Databricks con questo progetto.
 - Usa `databricks.yml` (bundle) per un job serverless Python script.
 - Le dipendenze runtime sono definite in `databricks.yml` (environment serverless).
 - `requirements.txt` e' solo per sviluppo locale, non per il job Databricks.
+
+## Check e test
+- Architettura: `python scripts/check_architecture.py`
+- Smoke: `python scripts/smoke_run.py --config configs/pipeline/pipeline_config_DEC.json`
+- Regressione:
+  - `python scripts/regression_check.py --config configs/pipeline/pipeline_config_DEC.json --write-baseline`
+  - `python scripts/regression_check.py --config configs/pipeline/pipeline_config_DEC.json`

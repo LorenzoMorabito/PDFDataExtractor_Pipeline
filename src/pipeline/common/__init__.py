@@ -1,4 +1,5 @@
-from .common.utilities import (
+from .StartDate import StartDate, trova_inizio_periodo
+from .utilities import (
     looks_like_header,
     is_empty,
     norm,
@@ -8,6 +9,8 @@ from .common.utilities import (
 )
 
 __all__ = [
+    "StartDate",
+    "trova_inizio_periodo",
     "looks_like_header",
     "is_empty",
     "norm",

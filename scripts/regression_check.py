@@ -1,0 +1,63 @@
+import argparse
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+
+from pipeline.orchestrator import run_pipeline
+
+
+def _fingerprint(df: pd.DataFrame, ignore_cols: set[str]) -> dict:
+    df = df.copy()
+    for c in ignore_cols:
+        if c in df.columns:
+            df = df.drop(columns=[c])
+    df = df.sort_index(axis=1)
+    row_hash = pd.util.hash_pandas_object(df, index=True).sum()
+    return {
+        "shape": list(df.shape),
+        "columns": list(df.columns),
+        "hash": int(row_hash),
+    }
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", required=True)
+    parser.add_argument("--baseline", default="artifacts/baseline.json")
+    parser.add_argument("--write-baseline", action="store_true")
+    parser.add_argument("--ignore-cols", default="timestamp_utc")
+    args = parser.parse_args()
+
+    ignore_cols = {c.strip() for c in args.ignore_cols.split(",") if c.strip()}
+    config_path = (ROOT / args.config).resolve()
+    config = json.loads(config_path.read_text(encoding="utf-8"))
+
+    result = run_pipeline(config, project_root=ROOT, publish=False)
+    fp = _fingerprint(result["df_final"], ignore_cols)
+
+    baseline_path = (ROOT / args.baseline).resolve()
+    baseline_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if args.write_baseline or not baseline_path.exists():
+        baseline_path.write_text(json.dumps(fp, indent=2), encoding="utf-8")
+        print(f"Baseline written: {baseline_path}")
+        return 0
+
+    baseline = json.loads(baseline_path.read_text(encoding="utf-8"))
+    if fp != baseline:
+        print("REGRESSION CHECK FAILED")
+        print("Current:", fp)
+        print("Baseline:", baseline)
+        return 1
+
+    print("REGRESSION CHECK PASSED")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
