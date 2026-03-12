@@ -105,16 +105,13 @@ Publish check (local artifacts):
 - `python scripts/publish_check.py --config configs/pipeline/pipeline_config_DEC.json --output-dir artifacts/publish --skip-delta`
 
 ## Root Compatibility Policy
-The root `src/pipeline` is a compatibility surface only. It may contain:
+The root `src/pipeline` is intentionally minimal. It may contain only:
 - entrypoint/orchestration
 - contracts
-- legacy shims/wrappers
-- deprecated modules that only re-export legacy APIs
 
-No new business logic should be added in root. Domain logic must live in `domains/`,
+No business logic should be added in root. Domain logic must live in `domains/`,
 `stages/`, `transforms/`, or `common/`. The architecture check enforces that root
-modules (excluding explicitly allowed entrypoints) are shim-only.
+modules (excluding explicitly allowed entrypoints) remain shim-only if any are added.
 
 ## Legacy Shims
-Root-level modules in `src/pipeline/` are thin wrappers that re-export the new
-domain/common modules to preserve backward compatibility.
+Legacy shims were removed in phase 3 to keep the root minimal and domain-focused.

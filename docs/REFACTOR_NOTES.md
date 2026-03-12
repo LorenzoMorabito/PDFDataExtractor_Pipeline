@@ -25,13 +25,4 @@ new module locations to preserve backward compatibility.
 | `__init__.py` | entrypoint | keep | Package exports only |
 | `contracts.py` | contract | keep | IO contracts between stages |
 | `orchestrator.py` | entrypoint | keep | End-to-end orchestration |
-| `etl_runner.py` | shim | keep | Legacy wrapper for orchestrator |
-| `etl_steps.py` | shim | keep | Legacy re-export for transforms |
-| `etl_steps_deprecated.py` | deprecated | keep (temporary) | Re-export legacy transforms for compatibility |
-| `DataQuality.py` | shim | keep | Re-export canonicalization DataQuality |
-| `HeaderProcessor.py` | shim | keep | Re-export reconstruction HeaderProcessor |
-| `TableSlicer.py` | shim | keep | Re-export reconstruction TableSlicer |
-| `TableSplitter.py` | shim | keep | Re-export reconstruction TableSplitter |
-| `TitleExtractor.py` | shim | keep | Re-export reconstruction TitleExtractor |
-| `StartDate.py` | shim | keep | Re-export common StartDate |
-| `utilities.py` | shim | keep | Re-export common utilities |
+| `etl_runner.py` | entrypoint | keep | Legacy entrypoint wrapper |

@@ -9,8 +9,6 @@ ALLOWED_ROOT = {
     "orchestrator.py",
     "contracts.py",
     "etl_runner.py",
-    "etl_steps.py",
-    "etl_steps_deprecated.py",
 }
 
 
