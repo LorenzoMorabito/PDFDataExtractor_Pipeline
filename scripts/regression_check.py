@@ -30,7 +30,7 @@ def main() -> int:
     parser.add_argument("--config", required=True)
     parser.add_argument("--baseline", default="artifacts/baseline.json")
     parser.add_argument("--write-baseline", action="store_true")
-    parser.add_argument("--ignore-cols", default="timestamp_utc")
+    parser.add_argument("--ignore-cols", default="timestamp_utc,run_id")
     args = parser.parse_args()
 
     ignore_cols = {c.strip() for c in args.ignore_cols.split(",") if c.strip()}
@@ -39,6 +39,12 @@ def main() -> int:
 
     result = run_pipeline(config, project_root=ROOT, publish=False)
     fp = _fingerprint(result["df_final"], ignore_cols)
+    qc_df = pd.DataFrame(result["qc_summary"])
+    err_df = pd.DataFrame(result["errors_list"])
+    fp_qc = _fingerprint(qc_df, set())
+    fp_err = _fingerprint(err_df, set())
+    fp["qc_summary"] = fp_qc
+    fp["errors_list"] = fp_err
 
     baseline_path = (ROOT / args.baseline).resolve()
     baseline_path.parent.mkdir(parents=True, exist_ok=True)
