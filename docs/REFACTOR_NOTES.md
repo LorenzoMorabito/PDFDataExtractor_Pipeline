@@ -25,4 +25,3 @@ new module locations to preserve backward compatibility.
 | `__init__.py` | entrypoint | keep | Package exports only |
 | `contracts.py` | contract | keep | IO contracts between stages |
 | `orchestrator.py` | entrypoint | keep | End-to-end orchestration |
-| `etl_runner.py` | entrypoint | keep | Legacy entrypoint wrapper |

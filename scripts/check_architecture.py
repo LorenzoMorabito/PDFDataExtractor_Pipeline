@@ -8,7 +8,6 @@ SRC = ROOT / "src" / "pipeline"
 ALLOWED_ROOT = {
     "orchestrator.py",
     "contracts.py",
-    "etl_runner.py",
 }
 
 
