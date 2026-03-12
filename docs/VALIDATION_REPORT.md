@@ -7,7 +7,7 @@ Branch: refactor/pipeline-modularization
 Baseline generated on `main` from stable sample input and saved as `artifacts/baseline_main.json`.
 
 Main commit (baseline): a5d90aca98694324593ea61b115f27858e48a52a
-Refactor commit (validated): TBD
+Refactor commit (validated): 75c9f9180b2871ccf77780c6bcb554de9d1cbbf7
 Config used: `artifacts/_baseline_config_DEC.json`
 Ignored non-functional fields: `run_id`, `timestamp_utc`
 
