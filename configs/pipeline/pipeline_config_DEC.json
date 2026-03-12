@@ -207,7 +207,7 @@
     "df_to_analyze_path": "artifacts/qc/dec_2025_df_to_analyze",
     "log_percentage_path": "artifacts/qc/dec_2025_log_percentage.csv",
     "run_report_path": "artifacts/monitoring/dec_2025_run_report.json",
-    "table_name": "dev_marketing_catalog.finance_pdf.fct_pdf_finance_extraction",
+    "table_name": "dev_marketing_catalog.finance_pdf.t_finance_data_pdf",
     "write_mode": "overwrite"
   },
   "final_columns": [

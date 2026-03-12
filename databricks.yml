@@ -2,6 +2,10 @@ bundle:
   name: pdfdataextractor-pipeline
   databricks_cli_version: ">= 0.229.0"
 
+permissions:
+  - level: CAN_MANAGE
+    group_name: users
+
 variables:
   config_path:
     default: configs/pipeline/pipeline_config_DEC.json
@@ -14,15 +18,23 @@ targets:
     default: true
     workspace:
       host: https://1276122062834378.8.gcp.databricks.com
+
   prod:
     mode: production
     workspace:
       host: https://1276122062834378.8.gcp.databricks.com
+      root_path: /Workspace/Shared/finance_pdf_ingestion/${bundle.name}/${bundle.target}
+      state_path: /Workspace/Shared/finance_pdf_ingestion/${bundle.name}/${bundle.target}/state
+      artifact_path: /Workspace/Shared/finance_pdf_ingestion/${bundle.name}/${bundle.target}/artifacts
+      file_path: /Workspace/Shared/finance_pdf_ingestion/${bundle.name}/${bundle.target}/files
+    permissions:
+      - level: CAN_MANAGE
+        group_name: users
 
 resources:
   jobs:
     pdfdataextractor_pipeline:
-      name: "[dev lmorabito] pdfdataextractor-pipeline"
+      name: pdfdataextractor-pipeline
       performance_target: STANDARD
       tasks:
         - task_key: run_pipeline
