@@ -11,11 +11,20 @@ sys.path.insert(0, str(ROOT / "src"))
 from pipeline.orchestrator import run_pipeline
 
 
+def _normalize_df(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.copy()
+    for col in df.columns:
+        if df[col].apply(lambda x: isinstance(x, (list, dict))).any():
+            df[col] = df[col].apply(lambda x: json.dumps(x, sort_keys=True) if isinstance(x, (list, dict)) else x)
+    return df
+
+
 def _fingerprint(df: pd.DataFrame, ignore_cols: set[str]) -> dict:
     df = df.copy()
     for c in ignore_cols:
         if c in df.columns:
             df = df.drop(columns=[c])
+    df = _normalize_df(df)
     df = df.sort_index(axis=1)
     row_hash = pd.util.hash_pandas_object(df, index=True).sum()
     return {
