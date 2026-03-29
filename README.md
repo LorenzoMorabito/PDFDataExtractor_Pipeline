@@ -29,6 +29,23 @@ Progettata per uso in Databricks (repo + notebook).
   - `python run_pipeline.py --config configs/pipeline/pipeline_config_DEC.json`
   - `python run_pipeline.py --config configs/pipeline/pipeline_config_GEN.json --output-dir data/output`
 
+### Config Databricks vs locale
+- Config Databricks ufficiale: `configs/pipeline/pipeline_config_DEC.json`
+- Config locale condivisa: `configs/pipeline/pipeline_config_DEC.local.sample.json`
+- Override personale opzionale: copia della sample in `configs/pipeline/pipeline_config_DEC.local.json`
+
+Regola pratica:
+- i file `*.local.sample.json` restano versionati e condivisi
+- i file `*.local.json` sono ignorati da Git e servono solo per override macchina-specifici
+
+Esempi:
+- Smoke locale condiviso:
+  - `python scripts/smoke_run.py --config configs/pipeline/pipeline_config_DEC.local.sample.json`
+- Run locale con override personale:
+  - `python run_pipeline.py --config configs/pipeline/pipeline_config_DEC.local.json`
+- Run Databricks / config ufficiale:
+  - `python run_pipeline.py --config configs/pipeline/pipeline_config_DEC.json`
+
 Variabili ambiente supportate:
 - `PIPELINE_CONFIG` (default: `configs/pipeline/pipeline_config_DEC.json`)
 - `PIPELINE_OUTPUT_DIR` (override path output)
@@ -70,7 +87,7 @@ Documentazione:
 
 ## Check e test
 - Architettura: `python scripts/check_architecture.py`
-- Smoke: `python scripts/smoke_run.py --config configs/pipeline/pipeline_config_DEC.json`
+- Smoke locale: `python scripts/smoke_run.py --config configs/pipeline/pipeline_config_DEC.local.sample.json`
 - Regressione:
-  - `python scripts/regression_check.py --config configs/pipeline/pipeline_config_DEC.json --write-baseline`
-  - `python scripts/regression_check.py --config configs/pipeline/pipeline_config_DEC.json`
+  - `python scripts/regression_check.py --config artifacts/_baseline_config_DEC.json --write-baseline`
+  - `python scripts/regression_check.py --config artifacts/_baseline_config_DEC.json`

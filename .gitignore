@@ -26,3 +26,7 @@ dsrc/
 
 # Data inputs
 *.pdfs
+
+# Personal config overrides
+configs/pipeline/*.local.json
+configs/extraction/*.local.json

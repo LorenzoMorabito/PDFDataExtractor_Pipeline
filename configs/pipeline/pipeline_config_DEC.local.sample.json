@@ -1,0 +1,238 @@
+{
+  "extraction_config_path": "configs/extraction/extract_config_page_ALL_DEC.local.sample.json",
+  "extractor": {
+    "return_phrases": false,
+    "return_stats": false,
+    "return_log": false,
+    "return_lineage": false,
+    "return_cells": false
+  },
+  "debug": false,
+  "header_tokens": [
+    "vs",
+    "act",
+    "bdg",
+    "eur",
+    "%",
+    "pct",
+    "ytd",
+    "month",
+    "euro/000",
+    "2024",
+    "2025",
+    "december"
+  ],
+  "header_rules": [
+    {
+      "id": "force_item_agg",
+      "stage": "pre",
+      "type": "set_colname",
+      "col_idx": 0,
+      "value": "item_agg",
+      "when": {
+        "op": "always"
+      }
+    },
+    {
+      "id": "col1_if_dec_or_ytd",
+      "stage": "pre",
+      "type": "set_colname",
+      "col_idx": 1,
+      "value": "item_agg_2",
+      "when": {
+        "op": "col_segment_in",
+        "tokens": [
+          "december",
+          "ytd"
+        ]
+      }
+    }
+  ],
+  "period_placeholder": null,
+  "period_tokens": [
+    "december",
+    "ytd"
+  ],
+  "period_min_hits": 2,
+  "title": {
+    "max_title_rows": 1,
+    "drop_row": true,
+    "debug": false
+  },
+  "split": {
+    "empty_threshold": 0.85,
+    "confirm_header": true,
+    "debug": false,
+    "keywords_primary": [
+      "TOTAL",
+      "GRAND_TOTAL"
+    ],
+    "keywords_fallback": [
+      "December",
+      "YTD"
+    ]
+  },
+  "slicer": {
+    "header_rows": [
+      0,
+      1
+    ],
+    "sim_thresholds": [
+      0.6,
+      0.95
+    ],
+    "debug": false
+  },
+  "aggregation_keywords": [
+    "Pharma",
+    "Oncology",
+    "Diagnostic",
+    "Other Business",
+    "TOTAL GROUP"
+  ],
+  "static_column_list": [
+    "page_num",
+    "page_title",
+    "page_subtitle",
+    "page_subtitle_1",
+    "table_id",
+    "period_agg",
+    "period_start",
+    "item_agg_1"
+  ],
+  "audit_column_list": [
+    "run_id",
+    "timestamp_utc"
+  ],
+  "dataquality": {
+    "preview_limit": 8,
+    "mutate": false
+  },
+  "cleaning": {
+    "percent_threshold": 0.5,
+    "percent_max_loss_ratio": 0.1,
+    "numeric_pre_scan_threshold": 0.5,
+    "numeric_max_loss_ratio": 0.1
+  },
+  "capitoli": {
+    "OVERVIEW": {
+      "page": [
+        0,
+        3
+      ],
+      "sottocapitoli": {
+        "OVERVIEW": [
+          0,
+          3
+        ]
+      }
+    },
+    "PHARMA": {
+      "page": [
+        4,
+        61
+      ],
+      "sottocapitoli": {
+        "OVERVIEW": [
+          4,
+          10
+        ],
+        "WESTERN_EUROPE": [
+          11,
+          20
+        ],
+        "CENTRAL_EASTERN_EUROPE": [
+          21,
+          27
+        ],
+        "ASIA_PACIFIC": [
+          28,
+          41
+        ],
+        "TURKEY_AFRICA_MIDDLE_EAST": [
+          42,
+          49
+        ],
+        "LATAM_CENTRAL_AMERICA": [
+          50,
+          57
+        ],
+        "PRODUCTS": [
+          58,
+          61
+        ]
+      }
+    },
+    "ONCOLOGY": {
+      "page": [
+        62,
+        65
+      ],
+      "sottocapitoli": {
+        "OVERVIEW": [
+          62,
+          65
+        ]
+      }
+    },
+    "DIAGNOSTIC": {
+      "page": [
+        66,
+        71
+      ],
+      "sottocapitoli": {
+        "OVERVIEW": [
+          66,
+          71
+        ]
+      }
+    },
+    "CELL_BIOLOGY": {
+      "page": [
+        73,
+        76
+      ],
+      "sottocapitoli": {
+        "OVERVIEW": [
+          62,
+          65
+        ]
+      }
+    }
+  },
+  "year_ref": 2025,
+  "output": {
+    "qc_summary_path": "artifacts/qc/dec_2025_qc.csv",
+    "errors_path": "artifacts/qc/dec_2025_errors.json",
+    "df_to_analyze_path": "artifacts/qc/dec_2025_df_to_analyze",
+    "log_percentage_path": "artifacts/qc/dec_2025_log_percentage.csv",
+    "run_report_path": "artifacts/monitoring/dec_2025_run_report.json",
+    "table_name": null,
+    "write_mode": "overwrite"
+  },
+  "final_columns": [
+    "page_num",
+    "capitolo",
+    "sottocapitolo",
+    "page_title",
+    "page_subtitle",
+    "page_subtitle_1",
+    "table_id",
+    "period_desc",
+    "period_start",
+    "item_agg_2",
+    "item_agg_1",
+    "item_agg",
+    "2024_act",
+    "2025_act",
+    "2025_bdg",
+    "eur_vs_act",
+    "pct_vs_act",
+    "eur_vs_bdg",
+    "pct_vs_bdg",
+    "eur_delta",
+    "pct_delta",
+    "run_id",
+    "timestamp_utc"
+  ]
+}
