@@ -11,7 +11,11 @@ from pipeline.orchestrator import run_pipeline
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config", required=True)
+    parser.add_argument(
+        "--config",
+        default="configs/pipeline/pipeline_config_DEC.local.sample.json",
+        help="Pipeline config path (JSON). Default: local shared sample config.",
+    )
     args = parser.parse_args()
 
     config_path = (ROOT / args.config).resolve()

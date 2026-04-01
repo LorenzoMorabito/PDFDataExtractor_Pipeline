@@ -13,6 +13,10 @@ pipeline/
     reconstruction.py
     canonicalization.py
     publish.py
+    refined/
+      core.py
+    load/
+      delta.py
   domains/
     reconstruction/
     canonicalization/
@@ -23,8 +27,8 @@ pipeline/
 Macromodules:
 1. Extraction / Raw Acquisition
 2. Table Reconstruction / Structural Parsing
-3. Canonicalization / Union / Data Quality
-4. Publish / Persistence / Reporting
+3. Refined / Union / Data Quality
+4. Load / Persistence / Reporting
 
 The end-to-end orchestrator composes these stages without changing business logic.
 
@@ -53,8 +57,8 @@ The end-to-end orchestrator composes these stages without changing business logi
 - `dfs_refined`: list of reconstructed tables
 - `errors_list`: parsing errors
 
-### Module 3 — Canonicalization / Union / Data Quality
-**Function:** `pipeline.stages.canonicalization.canonicalize`
+### Module 3 — Refined / Union / Data Quality
+**Function:** `pipeline.stages.refined.canonicalize`
 
 **Input:**
 - `dfs_refined`, `errors_list`, `config`
@@ -67,7 +71,7 @@ The end-to-end orchestrator composes these stages without changing business logi
 - `log_percentage`
 
 ### Module 4 — Publish / Persistence / Reporting
-**Function:** `pipeline.stages.publish.publish_outputs`
+**Function:** `pipeline.stages.load.publish_outputs`
 
 **Input:**
 - `result` (dict from canonicalization)
@@ -113,5 +117,7 @@ No business logic should be added in root. Domain logic must live in `domains/`,
 `stages/`, `transforms/`, or `common/`. The architecture check enforces that root
 modules (excluding explicitly allowed entrypoints) remain shim-only if any are added.
 
-## Legacy Shims
-Legacy shims were removed in phase 3 to keep the root minimal and domain-focused.
+## Compatibility Shims
+For backwards compatibility, the old flat stage modules remain available:
+- `pipeline.stages.canonicalization` -> shim verso `pipeline.stages.refined`
+- `pipeline.stages.publish` -> shim verso `pipeline.stages.load`

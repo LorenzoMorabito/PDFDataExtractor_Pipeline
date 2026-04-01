@@ -41,8 +41,16 @@ class StartDate:
         s = str(period_ref).strip()
         token = re.split(r"[\s,/_-]+", s)[0].lower()
 
+        if not s or token == "nan":
+            logger.debug("Periodo vuoto o non valorizzato: {}", period_ref)
+            raise ValueError(f"Periodo non valorizzato: {period_ref!r}")
+
+        if token == "ytd":
+            logger.debug("Periodo aggregato senza mese esplicito: {}", period_ref)
+            raise ValueError(f"Periodo aggregato senza mese: {period_ref!r}")
+
         if token not in MONTHS:
-            logger.error("Mese non riconosciuto: {}", period_ref)
+            logger.warning("Mese non riconosciuto: {}", period_ref)
             raise ValueError(f"Mese non riconosciuto: {period_ref!r}")
 
         month = MONTHS[token]

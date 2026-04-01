@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import pandas as pd
+
 from .stages.extraction import extract_raw
 from .stages.reconstruction import reconstruct_tables
 from .stages.canonicalization import canonicalize
@@ -12,6 +14,7 @@ def run_pipeline(
     output_paths: dict | None = None,
     publish: bool = True,
 ):
+    pd.set_option("future.no_silent_downcasting", True)
     project_root = project_root or Path(__file__).resolve().parents[2]
 
     extraction_out = extract_raw(config, project_root=project_root)

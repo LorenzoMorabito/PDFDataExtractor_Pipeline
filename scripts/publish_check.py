@@ -21,8 +21,8 @@ def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Publish-stage check for PDFDataExtractor pipeline.")
     parser.add_argument(
         "--config",
-        default="configs/pipeline/pipeline_config_DEC.json",
-        help="Pipeline config path (JSON).",
+        default="configs/pipeline/pipeline_config_DEC.local.sample.json",
+        help="Pipeline config path (JSON). Default: local shared sample config.",
     )
     parser.add_argument(
         "--output-dir",

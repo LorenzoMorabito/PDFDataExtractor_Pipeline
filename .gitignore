@@ -20,6 +20,9 @@ data/output/
 data/
 notebooks/archive/
 dsrc/
+artifacts/publish/
+fin_pipeline/documenti_usati_durante_gli_step_manuali/*.pdf
+fin_pipeline/documenti_usati_durante_gli_step_manuali/*.pptx
 
 # Logs
 *.log

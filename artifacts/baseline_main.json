@@ -1,0 +1,64 @@
+{
+  "shape": [
+    1919,
+    21
+  ],
+  "columns": [
+    "2024_act",
+    "2025_act",
+    "2025_bdg",
+    "capitolo",
+    "eur_delta",
+    "eur_vs_act",
+    "eur_vs_bdg",
+    "item_agg",
+    "item_agg_1",
+    "item_agg_2",
+    "page_num",
+    "page_subtitle",
+    "page_subtitle_1",
+    "page_title",
+    "pct_delta",
+    "pct_vs_act",
+    "pct_vs_bdg",
+    "period_desc",
+    "period_start",
+    "sottocapitolo",
+    "table_id"
+  ],
+  "hash": 8695901827336216103,
+  "qc_summary": {
+    "shape": [
+      138,
+      13
+    ],
+    "columns": [
+      "bad_chars_cols",
+      "bad_chars_n",
+      "bad_token_cols",
+      "bad_tokens_n",
+      "dup_cols",
+      "dup_n",
+      "idx",
+      "is_problem",
+      "issues",
+      "n_col",
+      "numeric_cols",
+      "numeric_n",
+      "page"
+    ],
+    "hash": 12848070848576579044
+  },
+  "errors_list": {
+    "shape": [
+      1,
+      3
+    ],
+    "columns": [
+      "e_des",
+      "n_col",
+      "page"
+    ],
+    "hash": 11858281609702309818
+  }
+}

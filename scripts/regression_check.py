@@ -36,8 +36,16 @@ def _fingerprint(df: pd.DataFrame, ignore_cols: set[str]) -> dict:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config", required=True)
-    parser.add_argument("--baseline", default="artifacts/baseline.json")
+    parser.add_argument(
+        "--config",
+        default="artifacts/_baseline_config_DEC.json",
+        help="Pipeline config path (JSON). Default: local baseline config.",
+    )
+    parser.add_argument(
+        "--baseline",
+        default="artifacts/baseline_main.json",
+        help="Baseline fingerprint path. Default: main baseline used for local regression checks.",
+    )
     parser.add_argument("--write-baseline", action="store_true")
     parser.add_argument("--ignore-cols", default="timestamp_utc,run_id")
     args = parser.parse_args()

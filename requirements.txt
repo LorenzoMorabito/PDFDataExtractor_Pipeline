@@ -2,4 +2,4 @@ numpy>=1.23.0
 pandas>=2.0.0
 loguru>=0.7.0
 xlsxwriter>=3.1,<4
-../PDFDataExtractor-lib/dist/pdfdataextractor-0.2.1-py3-none-any.whl
+../PDFDataExtractor-lib/dist/pdfdataextractor-0.2.2-py3-none-any.whl

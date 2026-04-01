@@ -5,7 +5,7 @@ Progettata per uso in Databricks (repo + notebook).
 
 ## Struttura
 - `src/pipeline/`: moduli della pipeline (codice)
-- `src/pipeline/stages/`: macromoduli (extraction, reconstruction, canonicalization, publish)
+- `src/pipeline/stages/`: macromoduli runtime (extraction, reconstruction, refined, load)
 - `src/pipeline/domains/`: logiche di dominio riallocate (reconstruction, canonicalization)
 - `src/pipeline/common/`: utility condivise
 - `run_pipeline.py`: entrypoint di esecuzione
@@ -16,11 +16,15 @@ Progettata per uso in Databricks (repo + notebook).
  - `scripts/`: check architetturale e regression harness
 
 ## Setup locale
-1) Crea un virtualenv Python 3.11 (consigliato: `.venv311-dev`) e installa le dipendenze:
-   - `pip install -r requirements.txt`
-2) La libreria `pdfdataextractor` e' inclusa in `requirements.txt` come wheel locale.
-   Se vuoi usare una versione da Git tag o da Volume Databricks, sostituisci la riga
-   con il path/URL corretto.
+1) Crea un virtualenv dedicato e installa le dipendenze:
+   - `py -3.11 -m venv .venv` oppure `py -3.12 -m venv .venv`
+   - `.\.venv\Scripts\python.exe -m pip install --upgrade pip`
+   - `.\.venv\Scripts\python.exe -m pip install -r requirements.txt`
+2) La libreria `pdfdataextractor` e' inclusa in `requirements.txt` come wheel locale:
+   - `..\PDFDataExtractor-lib\dist\pdfdataextractor-0.2.2-py3-none-any.whl`
+3) Runtime ufficiale Databricks: Python `3.11.x`.
+   Runtime locale validato nel repository: `.venv` con Python `3.12.10`.
+   Per sviluppo e smoke locale vanno bene entrambi; per allineamento stretto con Databricks resta preferibile Python `3.11`.
 
 ## Esecuzione
 - Script: `run_pipeline.py`
@@ -47,7 +51,7 @@ Esempi:
   - `python run_pipeline.py --config configs/pipeline/pipeline_config_DEC.json`
 
 Variabili ambiente supportate:
-- `PIPELINE_CONFIG` (default: `configs/pipeline/pipeline_config_DEC.json`)
+- `PIPELINE_CONFIG` (default: `configs/pipeline/pipeline_config_DEC.local.sample.json`)
 - `PIPELINE_OUTPUT_DIR` (override path output)
 - `LOG_LEVEL` (default: `INFO`)
 
@@ -69,14 +73,19 @@ Puoi disattivare la scrittura dei file con `--no-write`.
 Macromoduli:
 1. Extraction / Raw Acquisition: `pipeline.stages.extraction.extract_raw`
 2. Table Reconstruction / Structural Parsing: `pipeline.stages.reconstruction.reconstruct_tables`
-3. Canonicalization / Union / Data Quality: `pipeline.stages.canonicalization.canonicalize`
-4. Publish / Persistence / Reporting: `pipeline.stages.publish.publish_outputs`
+3. Refined / Union / Data Quality: `pipeline.stages.refined.canonicalize`
+4. Load / Persistence / Reporting: `pipeline.stages.load.publish_outputs`
+
+Compatibilita':
+- `pipeline.stages.canonicalization` resta disponibile come shim verso `pipeline.stages.refined`
+- `pipeline.stages.publish` resta disponibile come shim verso `pipeline.stages.load`
 
 Orchestrazione end-to-end:
 - `pipeline.orchestrator.run_pipeline`
 
 Documentazione:
 - `docs/ARCHITECTURE.md`
+- `docs/CONFIG_REFERENCE.md`
 - `docs/REFACTOR_NOTES.md`
 
 ## Databricks
