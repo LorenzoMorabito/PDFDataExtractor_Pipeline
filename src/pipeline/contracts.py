@@ -20,6 +20,7 @@ class ReconstructionOutput:
 
 @dataclass
 class CanonicalizationOutput:
+    df_refined: pd.DataFrame
     df_final: pd.DataFrame
     qc_summary: List[Dict[str, Any]]
     errors_list: List[Dict[str, Any]]

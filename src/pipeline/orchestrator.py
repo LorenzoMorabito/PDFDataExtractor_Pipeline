@@ -22,10 +22,15 @@ def run_pipeline(
         extraction_out.tables, extraction_out.page_config, config
     )
     canonical_out = canonicalize(
-        reconstruction_out.dfs_refined, reconstruction_out.errors_list, config
+        reconstruction_out.dfs_refined,
+        reconstruction_out.errors_list,
+        config,
+        extraction_cfg=extraction_out.extraction_cfg,
+        project_root=project_root,
     )
 
     result = {
+        "df_refined": canonical_out.df_refined,
         "df_final": canonical_out.df_final,
         "qc_summary": canonical_out.qc_summary,
         "errors_list": canonical_out.errors_list,

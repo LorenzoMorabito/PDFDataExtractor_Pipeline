@@ -2,6 +2,7 @@ from .cleaning import clean_percentage_smart, fix_numeric_smart_scan
 from .period import map_period_start, apply_period_desc
 from .chapters import apply_capitoli
 from .final_transformation import finalize_columns
+from .refined_schema import build_refined_dataframe
 
 __all__ = [
     "clean_percentage_smart",
@@ -10,4 +11,5 @@ __all__ = [
     "apply_period_desc",
     "apply_capitoli",
     "finalize_columns",
+    "build_refined_dataframe",
 ]

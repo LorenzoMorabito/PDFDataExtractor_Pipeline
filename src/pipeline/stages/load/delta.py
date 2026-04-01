@@ -116,6 +116,7 @@ def write_delta_table(df_final: pd.DataFrame, table_name: str, write_mode: str) 
 
 
 def publish_outputs(result: dict, output_paths: dict) -> None:
+    df_refined = result.get("df_refined", result["df_final"])
     df_final = result["df_final"]
     qc_summary = pd.DataFrame(result["qc_summary"])
     errors_list = _flatten_errors(result["errors_list"])
@@ -126,8 +127,10 @@ def publish_outputs(result: dict, output_paths: dict) -> None:
     table_name = output_paths.get("table_name")
     write_mode = output_paths.get("write_mode", "overwrite")
     if table_name:
-        write_delta_table(df_final, table_name, write_mode)
+        write_delta_table(df_refined, table_name, write_mode)
 
+    if output_paths.get("df_refined"):
+        _write_dataframe(df_refined, output_paths["df_refined"])
     if output_paths.get("df_final"):
         _write_dataframe(df_final, output_paths["df_final"])
     if output_paths.get("qc_summary"):
@@ -142,6 +145,7 @@ def publish_outputs(result: dict, output_paths: dict) -> None:
         report_path = Path(output_paths["run_report"])
         report_path.parent.mkdir(parents=True, exist_ok=True)
         report = {
+            "df_refined_shape": list(df_refined.shape),
             "df_final_shape": list(df_final.shape),
             "qc_summary_rows": int(len(qc_summary)),
             "errors_rows": int(len(errors_df)),

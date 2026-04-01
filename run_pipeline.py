@@ -39,6 +39,7 @@ def _build_output_paths(
 ) -> dict:
     output_cfg = config.get("output", {})
     paths = {
+        "df_refined": output_cfg.get("df_refined_path"),
         "df_final": output_cfg.get("df_final_path"),
         "qc_summary": output_cfg.get("qc_summary_path"),
         "errors": output_cfg.get("errors_path"),
@@ -55,6 +56,7 @@ def _build_output_paths(
     tag = config_path.stem.replace("pipeline_config_", "")
     if output_dir:
         base = _resolve_path(project_root, output_dir)
+        paths["df_refined"] = str(base / f"df_refined_{tag}.csv")
         paths["df_final"] = str(base / f"df_final_{tag}.csv")
         paths["qc_summary"] = str(base / f"qc_summary_{tag}.csv")
         paths["errors"] = str(base / f"errors_{tag}.csv")
@@ -62,7 +64,7 @@ def _build_output_paths(
         paths["log_percentage"] = str(base / f"log_percentage_{tag}.csv")
         paths["run_report"] = str(base / f"run_report_{tag}.json")
 
-    for key in ("df_final", "qc_summary", "errors", "df_to_analyze", "log_percentage", "run_report"):
+    for key in ("df_refined", "df_final", "qc_summary", "errors", "df_to_analyze", "log_percentage", "run_report"):
         if paths.get(key):
             paths[key] = _resolve_path(project_root, paths[key])
 
@@ -115,7 +117,11 @@ def main() -> int:
         publish=not args.no_write,
     )
 
-    logger.info("Pipeline completata. DF finale shape={}", result["df_final"].shape)
+    logger.info(
+        "Pipeline completata. DF refined shape={} | DF finale legacy shape={}",
+        result["df_refined"].shape,
+        result["df_final"].shape,
+    )
     return 0
 
 

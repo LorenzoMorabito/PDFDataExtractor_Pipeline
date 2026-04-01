@@ -59,6 +59,7 @@ def main() -> int:
     output_dir = _resolve_path(project_root, args.output_dir)
 
     output_paths = {
+        "df_refined": output_dir / "df_refined.csv",
         "df_final": output_dir / "df_final.csv",
         "qc_summary": output_dir / "qc_summary.csv",
         "errors": output_dir / "errors.csv",
@@ -87,6 +88,7 @@ def main() -> int:
             raise
 
     expected = {
+        "df_refined.csv": output_dir / "df_refined.csv",
         "df_final.csv": output_dir / "df_final.csv",
         "qc_summary.csv": output_dir / "qc_summary.csv",
         "errors.csv": output_dir / "errors.csv",

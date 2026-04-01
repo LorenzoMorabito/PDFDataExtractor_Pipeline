@@ -6,6 +6,7 @@ from ...domains.canonicalization.DataQuality import DataQuality
 from ...transforms import (
     apply_capitoli,
     apply_period_desc,
+    build_refined_dataframe,
     clean_percentage_smart,
     finalize_columns,
     fix_numeric_smart_scan,
@@ -14,7 +15,12 @@ from ...transforms import (
 
 
 def canonicalize(
-    dfs_refined: list, errors_list: list, config: dict
+    dfs_refined: list,
+    errors_list: list,
+    config: dict,
+    *,
+    extraction_cfg: dict | None = None,
+    project_root=None,
 ) -> CanonicalizationOutput:
     dq = DataQuality(preview_limit=config["dataquality"]["preview_limit"])
     res = dq.run(dfs_refined, mutate=config["dataquality"]["mutate"])
@@ -43,11 +49,20 @@ def canonicalize(
 
     df_final = apply_capitoli(df_final, config["capitoli"])
     df_final = apply_period_desc(df_final)
+    df_refined = build_refined_dataframe(
+        df_final,
+        year_ref=config["year_ref"],
+        config=config,
+        source_file_path=(extraction_cfg or {}).get("pdf_path"),
+        project_root=project_root,
+    )
 
     df_final = finalize_columns(df_final, config["final_columns"])
     df_final["timestamp_utc"] = df_final["timestamp_utc"].dt.tz_localize(None)
+    df_refined["timestamp_utc"] = pd.to_datetime(df_refined["timestamp_utc"], utc=True).dt.tz_localize(None)
 
     return CanonicalizationOutput(
+        df_refined=df_refined,
         df_final=df_final,
         qc_summary=qc_summary,
         errors_list=errors_list,
