@@ -88,7 +88,12 @@ Typical link:
 | `output.log_percentage_path` | string | no | `run_pipeline._build_output_paths`, `pipeline.stages.publish.publish_outputs` | path for percentage-conversion loss log |
 | `output.run_report_path` | string | no | `run_pipeline._build_output_paths`, `pipeline.stages.publish.publish_outputs` | run summary JSON path |
 | `output.table_name` | string or null | no | `pipeline.stages.publish.write_delta_table` | target Delta table name |
-| `output.write_mode` | string | no | `pipeline.stages.publish.write_delta_table` | Spark write mode, usually `overwrite` |
+| `output.write_mode` | string | no | `pipeline.stages.publish.write_delta_table` | Delta load strategy: `overwrite`, `append`, `append_dedup`, `merge` |
+| `output.key_columns` | string[] | no | `pipeline.stages.publish.write_delta_table` | technical/business key used by `append_dedup` and `merge`; default is `record_hash` |
+| `output.partition_by` | string[] | no | `pipeline.stages.publish.write_delta_table` | partition columns applied when the Delta table is created |
+| `output.column_mapping` | object | no | `pipeline.stages.publish.write_delta_table` | optional source-to-target rename map applied before the Delta load |
+| `output.required_columns` | string[] | no | `pipeline.stages.publish.write_delta_table` | columns that must exist after mapping and default population |
+| `output.default_values` | object | no | `pipeline.stages.publish.write_delta_table` | default values used to add missing columns or fill nulls before the Delta load |
 | `final_columns` | list[string] | yes | `pipeline.transforms.final_transformation.finalize_columns` | final strict output column order |
 
 ## Part 2: Detailed Reference
@@ -462,8 +467,48 @@ The `output` section is resolved by `run_pipeline.py::_build_output_paths` and w
 
 #### `output.write_mode`
 
-- Purpose: Spark write mode used when `table_name` is set.
-- Typical value: `overwrite`
+- Purpose: Delta load strategy used when `table_name` is set.
+- Typical values:
+  - `merge`: insert-only merge on `output.key_columns`; preferred for refined landing
+  - `append_dedup`: append only rows whose keys are not already present
+  - `append`: plain append without dedup
+  - `overwrite`: full refresh
+
+#### `output.key_columns`
+
+- Purpose: key columns used by `merge` and `append_dedup`.
+- Typical value: `["record_hash"]`
+- Important:
+  - if the selected columns are missing from `df_refined`, the loader fails
+  - incoming duplicates on these keys are dropped before the Delta write
+
+#### `output.partition_by`
+
+- Purpose: logical partition columns for the refined Delta table.
+- Typical value: `["report_year", "report_month"]`
+- Important:
+  - applied when the target table is created
+  - ignored for plain file outputs
+
+#### `output.column_mapping`
+
+- Purpose: rename incoming dataframe columns before the Delta load.
+- Typical use:
+  - standardize dataframe names across different pipelines before writing to the same target table
+
+#### `output.required_columns`
+
+- Purpose: enforce the minimum schema contract expected by the target table.
+- Important:
+  - validation runs after `output.column_mapping`
+  - if one required column is missing, the load fails before writing
+
+#### `output.default_values`
+
+- Purpose: populate technical or business defaults before the Delta load.
+- Typical use:
+  - add missing layer columns
+  - fill `null` values with a known fallback when the target contract requires it
 
 ### Final Schema
 
@@ -514,4 +559,3 @@ Typical symptoms:
   - often wrong month tokens or wrong page included
 - missing `period_start`
   - often `year_ref` or `period_agg` mismatch
-

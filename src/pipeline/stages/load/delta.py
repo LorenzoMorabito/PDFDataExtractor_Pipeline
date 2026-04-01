@@ -2,9 +2,12 @@ import os
 import shutil
 import tempfile
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
 from loguru import logger
+
+from ...common import controlled_delta_load
 
 
 def _flatten_errors(errors):
@@ -106,16 +109,30 @@ def _write_dataframe_list(dfs: list[pd.DataFrame], path: str | Path) -> None:
         df.to_csv(out_dir / name, index=False)
 
 
-def write_delta_table(df_final: pd.DataFrame, table_name: str, write_mode: str) -> None:
-    from pyspark.sql import SparkSession
+def write_delta_table(
+    df_final: pd.DataFrame,
+    table_name: str,
+    write_mode: str,
+    *,
+    key_columns: list[str] | None = None,
+    partition_by: list[str] | None = None,
+    column_mapping: dict[str, str] | None = None,
+    required_columns: list[str] | None = None,
+    default_values: dict[str, object] | None = None,
+) -> dict[str, object]:
+    return controlled_delta_load(
+        df_final,
+        table_name,
+        write_mode=write_mode,
+        key_columns=key_columns,
+        partition_by=partition_by,
+        column_mapping=column_mapping,
+        required_columns=required_columns,
+        default_values=default_values,
+    )
 
-    spark = SparkSession.builder.getOrCreate()
-    spark.createDataFrame(df_final).write.format("delta").mode(write_mode).option(
-        "overwriteSchema", "true"
-    ).saveAsTable(table_name)
 
-
-def publish_outputs(result: dict, output_paths: dict) -> None:
+def publish_outputs(result: dict, output_paths: dict) -> dict[str, Any]:
     df_refined = result.get("df_refined", result["df_final"])
     df_final = result["df_final"]
     qc_summary = pd.DataFrame(result["qc_summary"])
@@ -126,8 +143,18 @@ def publish_outputs(result: dict, output_paths: dict) -> None:
 
     table_name = output_paths.get("table_name")
     write_mode = output_paths.get("write_mode", "overwrite")
+    delta_load = None
     if table_name:
-        write_delta_table(df_refined, table_name, write_mode)
+        delta_load = write_delta_table(
+            df_refined,
+            table_name,
+            write_mode,
+            key_columns=output_paths.get("key_columns"),
+            partition_by=output_paths.get("partition_by"),
+            column_mapping=output_paths.get("column_mapping"),
+            required_columns=output_paths.get("required_columns"),
+            default_values=output_paths.get("default_values"),
+        )
 
     if output_paths.get("df_refined"):
         _write_dataframe(df_refined, output_paths["df_refined"])
@@ -151,4 +178,8 @@ def publish_outputs(result: dict, output_paths: dict) -> None:
             "errors_rows": int(len(errors_df)),
             "df_to_analyze_count": int(len(df_to_analyze)),
         }
+        if delta_load is not None:
+            report["delta_load"] = delta_load
         report_path.write_text(pd.Series(report).to_json(), encoding="utf-8")
+
+    return {"delta_load": delta_load}

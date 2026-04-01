@@ -68,6 +68,11 @@ def main() -> int:
         "run_report": output_dir / "run_report.json",
         "table_name": None if args.skip_delta else output_cfg.get("table_name"),
         "write_mode": output_cfg.get("write_mode", "overwrite"),
+        "key_columns": output_cfg.get("key_columns", ["record_hash"]),
+        "partition_by": output_cfg.get("partition_by", []),
+        "column_mapping": output_cfg.get("column_mapping", {}),
+        "required_columns": output_cfg.get("required_columns", []),
+        "default_values": output_cfg.get("default_values", {}),
     }
 
     sys.path.insert(0, str(project_root / "src"))

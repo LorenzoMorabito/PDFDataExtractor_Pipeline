@@ -208,7 +208,14 @@
     "log_percentage_path": "artifacts/qc/dec_2025_log_percentage.csv",
     "run_report_path": "artifacts/monitoring/dec_2025_run_report.json",
     "table_name": null,
-    "write_mode": "overwrite"
+    "write_mode": "merge",
+    "key_columns": [
+      "record_hash"
+    ],
+    "partition_by": [
+      "report_year",
+      "report_month"
+    ]
   },
   "final_columns": [
     "page_num",

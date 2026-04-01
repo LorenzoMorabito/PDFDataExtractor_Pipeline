@@ -57,16 +57,23 @@ Variabili ambiente supportate:
 
 ## Output
 Output canonico:
-- **Delta table** (`output.table_name`)
+- **Delta table refined** (`output.table_name`)
+  - il landing Delta usa `df_refined`
+  - `output.write_mode` supporta `merge`, `append_dedup`, `append`, `overwrite`
+  - la chiave tecnica consigliata e' `output.key_columns = ["record_hash"]`
+  - il modulo riusabile di controlled load e' `src/pipeline/common/delta_loader.py`
+  - puoi passare `output.column_mapping`, `output.required_columns` e `output.default_values` per riusarlo anche con altri dataframe e layer
 
 Artefatti QC/monitoring (file, relativi alla root del progetto):
+- `df_refined_path`
+- `df_final_path` (legacy compatibility)
 - `qc_summary_path`
 - `errors_path`
 - `df_to_analyze_path` (scrive una directory CSV se non ha estensione)
 - `log_percentage_path`
 - `run_report_path`
 
-Se `df_final_path` e' valorizzato, il file viene scritto; altrimenti si scrive solo la tabella.
+Se `df_refined_path` o `df_final_path` sono valorizzati, i file vengono scritti; altrimenti si scrive solo la tabella.
 Puoi disattivare la scrittura dei file con `--no-write`.
 
 ## Architettura
